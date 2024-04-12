@@ -1,0 +1,35 @@
+name: test
+
+on:
+  workflow_dispatch:
+    branches:
+      - "main"
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  build:
+    permissions:
+      contents: read
+      packages: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "$TOKEN" | docker login ghcr.io --username "$USERNAME" --password-stdin
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ github.actor }}
+      - name: Build image
+        run: |
+          docker build --tag ghcr.io/$GITHUB_REPOSITORY-experimental:latest .
+      - name: Deploy image
+        if: github.event_name != 'pull_request'
+        run: |
+          docker push ghcr.io/$GITHUB_REPOSITORY-experimental:latest
