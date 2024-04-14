@@ -1,0 +1,15 @@
+{
+    "build": { "dockerfile": "Dockerfile" },
+    "customizations": {
+        "vscode": {
+          "settings": {
+            "terminal.integrated.defaultProfile.linux": "msys2",
+            "terminal.integrated.profiles.linux": {
+              "msys2": {
+                "path": "msys2"
+              }
+            }
+          }
+        }
+    }
+}
