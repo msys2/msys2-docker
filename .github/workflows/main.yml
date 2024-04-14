@@ -23,10 +23,12 @@ jobs:
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
           USERNAME: ${{ github.actor }}
-      - name: Build image
+      - name: Build images
         run: |
           docker build --tag ghcr.io/$GITHUB_REPOSITORY-experimental:latest .
-      - name: Deploy image
+          docker build -f devcontainer.Dockerfile --tag ghcr.io/$GITHUB_REPOSITORY-devcontainer:latest .
+      - name: Deploy images
         if: github.event_name != 'pull_request'
         run: |
           docker push ghcr.io/$GITHUB_REPOSITORY-experimental:latest
+          docker push ghcr.io/$GITHUB_REPOSITORY-devcontainer:latest

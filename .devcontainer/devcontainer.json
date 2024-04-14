@@ -1,5 +1,5 @@
 {
-    "build": { "dockerfile": "Dockerfile" },
+    "image": "ghcr.io/msys2/msys2-docker-devcontainer",
     "customizations": {
         "vscode": {
           "settings": {
