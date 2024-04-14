@@ -2,14 +2,29 @@
     "image": "ghcr.io/msys2/msys2-docker-devcontainer",
     "customizations": {
         "vscode": {
-          "settings": {
-            "terminal.integrated.defaultProfile.linux": "msys2",
-            "terminal.integrated.profiles.linux": {
-              "msys2": {
-                "path": "msys2"
-              }
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "MSYS2-UCRT64",
+                "terminal.integrated.profiles.linux": {
+                    "MSYS2-UCRT64": {
+                        "path": "msys2",
+                        "env": {
+                            "MSYSTEM": "UCRT64"
+                        }
+                    },
+                    "MSYS2-CLANG64": {
+                        "path": "msys2",
+                        "env": {
+                            "MSYSTEM": "CLANG64"
+                        }
+                    },
+                    "MSYS2-MSYS": {
+                        "path": "msys2",
+                        "env": {
+                            "MSYSTEM": "MSYS"
+                        }
+                    }
+                }
             }
-          }
         }
     }
 }
