@@ -1,4 +1,4 @@
-FROM ghcr.io/lazka/msys2-docker-experimental
+FROM ghcr.io/msys2/msys2-docker-experimental
 
 RUN apt update \
     && apt install -y git \
