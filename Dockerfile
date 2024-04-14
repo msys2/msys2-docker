@@ -10,7 +10,8 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y git
 # Build and install patched WINE (see https://github.com/msys2/MSYS2-packages/issues/682)
 RUN git clone https://gitlab.winehq.org/jhol/wine.git /tmp/winesrc
 WORKDIR /tmp/winesrc
-RUN git checkout msys2-hacks-17
+# https://gitlab.winehq.org/jhol/wine/-/commits/msys2-hacks-17
+RUN git checkout aed38b3fea259c23738d60df67d562592d394393
 RUN ./configure --disable-tests --enable-win64
 RUN make -j $(nproc)
 RUN env DESTDIR=/tmp/install make -j $(nproc) install
