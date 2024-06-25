@@ -7,6 +7,8 @@ on:
   pull_request:
     branches:
       - "main"
+  schedule:
+    - cron: '0 0 1 * *'
 
 jobs:
   build:
@@ -16,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Log in
         if: github.event_name != 'pull_request'
         run: |
@@ -23,21 +26,37 @@ jobs:
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
           USERNAME: ${{ github.actor }}
+
+      - name: Build build base image
+        if: github.event_name != 'schedule'
+        run: |
+          docker build --tag ghcr.io/msys2/msys2-docker-build-base:latest ./build-base
+
       - name: Build images
         run: |
-          docker build --tag ghcr.io/$GITHUB_REPOSITORY-experimental:latest .
-          docker build -f devcontainer.Dockerfile --tag ghcr.io/$GITHUB_REPOSITORY-devcontainer:latest .
+          docker build --tag ghcr.io/msys2/msys2-docker-experimental:latest ./msys2
+          docker build --tag ghcr.io/msys2/msys2-docker-devcontainer:latest ./devcontainer
+
       - name: Save images
+        if: github.event_name == 'pull_request'
         run: |
-          docker image save ghcr.io/$GITHUB_REPOSITORY-experimental:latest | zstd -T0 -c > experimental.tar.zst
-          docker image save ghcr.io/$GITHUB_REPOSITORY-devcontainer:latest | zstd -T0 -c > devcontainer.tar.zst
+          docker image save ghcr.io/msys2-docker-experimental:latest | zstd -T0 -c > experimental.tar.zst
+          docker image save ghcr.io/msys2-docker-devcontainer:latest | zstd -T0 -c > devcontainer.tar.zst
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
+        if: github.event_name == 'pull_request'
         with:
           name: docker-images
           path: '*.tar.zst'
+
+      - name: Deploy build base image
+        if: github.event_name != 'pull_request' && github.event_name != 'schedule'
+        run: |
+          docker push ghcr.io/msys2/msys2-docker-build-base:latest
+
       - name: Deploy images
         if: github.event_name != 'pull_request'
         run: |
-          docker push ghcr.io/$GITHUB_REPOSITORY-experimental:latest
-          docker push ghcr.io/$GITHUB_REPOSITORY-devcontainer:latest
+          docker push ghcr.io/msys2/msys2-docker-experimental:latest
+          docker push ghcr.io/msys2/msys2-docker-devcontainer:latest
