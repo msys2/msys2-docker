@@ -1,3 +1,3 @@
 #!/bin/bash
 
-WINEDEBUG="-all" WINEPATH="C:\\msys64\\usr\\bin" MSYSTEM="${MSYSTEM:-UCRT64}" xvfb-run -a wine64 bash.exe -l "$@"
+WINEDEBUG="-all" WINEPATH="C:\\msys64\\usr\\bin" MSYSTEM="${MSYSTEM:-UCRT64}" xvfb-run -a wine bash.exe -l "$@"

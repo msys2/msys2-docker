@@ -27,6 +27,15 @@ jobs:
         run: |
           docker build --tag ghcr.io/$GITHUB_REPOSITORY-experimental:latest .
           docker build -f devcontainer.Dockerfile --tag ghcr.io/$GITHUB_REPOSITORY-devcontainer:latest .
+      - name: Save images
+        run: |
+          docker image save ghcr.io/$GITHUB_REPOSITORY-experimental:latest | zstd -T0 -c > experimental.tar.zst
+          docker image save ghcr.io/$GITHUB_REPOSITORY-devcontainer:latest | zstd -T0 -c > devcontainer.tar.zst
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-images
+          path: '*.tar.zst'
       - name: Deploy images
         if: github.event_name != 'pull_request'
         run: |
