@@ -40,8 +40,8 @@ jobs:
       - name: Save images
         if: github.event_name == 'pull_request'
         run: |
-          docker image save ghcr.io/msys2-docker-experimental:latest | zstd -T0 -c > experimental.tar.zst
-          docker image save ghcr.io/msys2-docker-devcontainer:latest | zstd -T0 -c > devcontainer.tar.zst
+          docker image save ghcr.io/msys2/msys2-docker-experimental:latest | zstd -T0 -c > experimental.tar.zst
+          docker image save ghcr.io/msys2/msys2-docker-devcontainer:latest | zstd -T0 -c > devcontainer.tar.zst
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
