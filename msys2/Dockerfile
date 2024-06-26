@@ -9,7 +9,7 @@ FROM debian:bookworm
 
 # Copy over wine and install the runtime deps
 RUN apt update \
-    && apt install -y --no-install-recommends xvfb wine64 xauth \
+    && apt install -y --no-install-recommends xvfb wine64 xauth tini \
     && apt remove -y wine64 libwine \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=build /wine /
@@ -40,4 +40,5 @@ RUN chmod +x /usr/bin/msys2
 RUN msys2 -c " "
 
 WORKDIR /root/.wine/drive_c/msys64/home/root
+ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["msys2"]
