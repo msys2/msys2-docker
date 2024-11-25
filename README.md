@@ -2,7 +2,7 @@
 
 This repository provides Docker images including MSYS2.
 
-# Linux & Wine
+## Linux & Wine
 
 **WARNING:** Package and database signature checks are currently disabled to
 speed up the build process. This Docker image is not recommended for production
@@ -35,6 +35,12 @@ Acknowledgments:
   MSYS2/Cygwin specific changes is developed by [@jhol (Joel
   Holdsworth)](https://github.com/jhol)
 
-# Windows
+## Windows
 
 Would they be useful? Let us know.
+
+## License
+
+Everything in this repository is licensed under the
+[BSD-3-Clause](https://spdx.org/licenses/BSD-3-Clause.html) License unless
+otherwise noted.
