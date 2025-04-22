@@ -3,7 +3,7 @@ FROM ghcr.io/msys2/msys2-docker-build-base AS build
 # Install MSYS2
 RUN apt update && apt install -y zstd curl
 RUN mkdir -p /tmp/msys64
-RUN curl --fail -L 'https://github.com/msys2/msys2-installer/releases/download/nightly-x86_64/msys2-base-x86_64-latest.tar.zst' | tar -x --zstd -C  /tmp/
+RUN curl --fail -L 'https://github.com/msys2/msys2-installer/releases/download/nightly-x86_64/msys2-base-x86_64-latest.tar.zst' | tar -x --zstd -C /tmp/ --no-same-owner
 
 FROM debian:bookworm
 
