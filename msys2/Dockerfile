@@ -15,8 +15,11 @@ RUN apt update \
 COPY --from=build /wine /
 RUN ldconfig
 
+# Avoid "tzset" startup warning + and wineboot crashing
+ENV TZ=UTC
+
 # XXX: otherwise things hang
-RUN winecfg
+RUN WINEDEBUG=-all wineboot --init
 
 # Copy over MSYS2
 COPY --from=build /tmp/msys64 /root/.wine/drive_c/msys64
