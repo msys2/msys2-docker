@@ -9,7 +9,7 @@ FROM debian:trixie
 
 # Copy over wine and install the runtime deps
 RUN apt update \
-    && apt install -y --no-install-recommends xvfb wine64 xauth \
+    && apt install -y --no-install-recommends xvfb wine64 xauth ca-certificates \
     && apt remove -y wine64 libwine \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=build /wine /
