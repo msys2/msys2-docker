@@ -5,7 +5,7 @@ RUN apt update && apt install -y zstd curl
 RUN mkdir -p /tmp/msys64
 RUN curl --fail -L 'https://github.com/msys2/msys2-installer/releases/download/nightly-x86_64/msys2-base-x86_64-latest.tar.zst' | tar -x --zstd -C  /tmp/
 
-FROM debian:bookworm
+FROM debian:trixie
 
 # Copy over wine and install the runtime deps
 RUN apt update \
