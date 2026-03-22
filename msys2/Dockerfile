@@ -19,7 +19,7 @@ RUN ldconfig
 ENV TZ=UTC
 
 # XXX: otherwise things hang
-RUN WINEDEBUG=-all wineboot --init
+RUN WINEDEBUG=-all wineboot --init && wineserver --wait
 
 # Copy over MSYS2
 COPY --from=build /tmp/msys64 /root/.wine/drive_c/msys64
