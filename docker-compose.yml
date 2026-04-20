@@ -1,0 +1,27 @@
+services:
+  build-base:
+    build:
+      context: ./build-base
+    image: ghcr.io/msys2/msys2-docker-build-base:latest
+    pull_policy: never
+
+  msys2:
+    build:
+      context: ./msys2
+      additional_contexts:
+        ghcr.io/msys2/msys2-docker-build-base: "service:build-base"
+    image: ghcr.io/msys2/msys2-docker-experimental:latest
+
+  cygwin:
+    build:
+      context: ./cygwin
+      additional_contexts:
+        ghcr.io/msys2/msys2-docker-build-base: "service:build-base"
+    image: ghcr.io/msys2/cygwin-docker-experimental:latest
+
+  devcontainer:
+    build:
+      context: ./devcontainer
+      additional_contexts:
+        ghcr.io/msys2/msys2-docker-build-base: "service:build-base"
+    image: ghcr.io/msys2/msys2-docker-devcontainer:latest
