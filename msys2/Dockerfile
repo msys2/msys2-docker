@@ -16,7 +16,9 @@ COPY --from=build /wine /
 RUN ldconfig
 
 # Avoid "tzset" startup warning + and wineboot crashing
+# Suppress Gecko/Mono install prompts (not needed in container)
 ENV TZ=UTC
+ENV WINEDLLOVERRIDES="mshtml=d;mscoree=d"
 
 # XXX: otherwise things hang
 RUN WINEDEBUG=-all wineboot --init && wineserver --wait
