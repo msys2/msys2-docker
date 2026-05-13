@@ -19,5 +19,5 @@ RUN git clone --filter=tree:0 https://gitlab.winehq.org/jhol/wine.git /tmp/wines
     env DESTDIR=/wine make -j $(nproc) install && \
     rm -rf /tmp/winesrc && \
     # Clean things up
-    find /wine -type f -exec strip --strip-all {} \; && \
-    rm -Rf /wine/usr/local/include
+    rm -Rf /wine/usr/local/include && \
+    find /wine -type f -exec strip --strip-all {} \;
