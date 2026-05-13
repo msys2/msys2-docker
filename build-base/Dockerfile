@@ -12,8 +12,8 @@ RUN apt update && \
 # Build and install patched WINE (see https://github.com/msys2/MSYS2-packages/issues/682)
 RUN git clone --filter=tree:0 https://gitlab.winehq.org/jhol/wine.git /tmp/winesrc && \
     cd /tmp/winesrc && \
-    # https://gitlab.winehq.org/jhol/wine/-/commits/msys2-hacks-22
-    git checkout 2aa524aec434517843ffa1d52ad1982f86fdd074 && \
+    # https://gitlab.winehq.org/jhol/wine/-/commits/msys2-hacks-23
+    git checkout 5c414526d58855b42478ed7ad7faf6654f646b04 && \
     ./configure --disable-tests --enable-win64 --with-mingw --enable-archs=x86_64,i386 && \
     make -j $(nproc) && \
     env DESTDIR=/wine make -j $(nproc) install && \
