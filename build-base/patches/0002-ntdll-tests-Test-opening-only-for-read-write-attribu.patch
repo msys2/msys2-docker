@@ -1,32 +1,26 @@
-From 8e83db6ae08670ca765cb3f8b534284343a39756 Mon Sep 17 00:00:00 2001
+From 270598a7123e049ec09e0283f99963557653ce70 Mon Sep 17 00:00:00 2001
 From: Joel Holdsworth <joel@airwebreathe.org.uk>
 Date: Tue, 13 May 2025 11:46:19 -0700
-Subject: [PATCH 03/15] ntdll/tests: Test opening read-only files only for
- read/write attributes.
+Subject: [PATCH 2/6] ntdll/tests: Test opening only for read/write attributes.
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 Co-authored-by: Bernhard Übelacker <bernhardu@mailbox.org>
 ---
- dlls/ntdll/tests/file.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ dlls/ntdll/tests/file.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/dlls/ntdll/tests/file.c b/dlls/ntdll/tests/file.c
-index 69aac1506e..a10bf1e35c 100644
+index f741ffbfd3..245e739d1b 100644
 --- a/dlls/ntdll/tests/file.c
 +++ b/dlls/ntdll/tests/file.c
-@@ -5954,6 +5954,16 @@ static void test_file_readonly_access(void)
+@@ -6001,6 +6001,11 @@ static void test_file_readonly_access(void)
      status = pNtOpenFile(&handle, GENERIC_WRITE, &attr, &io, default_sharing, FILE_NON_DIRECTORY_FILE);
      ok(status == STATUS_ACCESS_DENIED, "expected STATUS_ACCESS_DENIED, got %#lx.\n", status);
  
 +    /* NtOpenFile FILE_{READ,WRITE}_ATTRIBUTES */
 +    status = pNtOpenFile(&handle, FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES, &attr, &io, default_sharing, FILE_NON_DIRECTORY_FILE);
-+    todo_wine ok(status == STATUS_SUCCESS, "expected STATUS_SUCCESS, got %#lx.\n", status);
-+    CloseHandle(handle);
-+
-+    /* NtOpenFile FILE_{READ,WRITE}_EA */
-+    status = pNtOpenFile(&handle, FILE_READ_EA | FILE_WRITE_EA, &attr, &io, default_sharing, FILE_NON_DIRECTORY_FILE);
 +    todo_wine ok(status == STATUS_SUCCESS, "expected STATUS_SUCCESS, got %#lx.\n", status);
 +    CloseHandle(handle);
 +

@@ -13,7 +13,7 @@ RUN apt update && \
 COPY patches /tmp/wine-patches
 RUN git clone --filter=tree:0 https://gitlab.winehq.org/wine/wine.git /tmp/winesrc && \
     cd /tmp/winesrc && \
-    git checkout wine-11.8 && \
+    git checkout wine-11.14 && \
     git apply /tmp/wine-patches/*.patch && \
     ./configure --disable-tests --enable-win64 --with-mingw --enable-archs=x86_64,i386 && \
     make -j $(nproc) && \

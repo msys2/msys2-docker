@@ -1,0 +1,33 @@
+From 619a4fad340325db9c0c89e0bd4149bfd4eeda7f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bernhard=20=C3=9Cbelacker?= <bernhardu@mailbox.org>
+Date: Sat, 23 Dec 2023 16:04:40 +0100
+Subject: [PATCH 1/6] ntdll: Add read and write to new guard pages.
+
+cygwin64: LANG=C wine c:/cygwin64/bin/mintty.exe
+msys2-64: LANG=C wine c:/msys64/usr/bin/mintty.exe
+
+Based on patch by Zeb Figura:
+  https://bugs.winehq.org/attachment.cgi?id=70483
+  https://bugs.winehq.org/show_bug.cgi?id=47808
+
+Wine-Bug: https://bugs.winehq.org/show_bug.cgi?id=55138
+---
+ dlls/ntdll/unix/virtual.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/dlls/ntdll/unix/virtual.c b/dlls/ntdll/unix/virtual.c
+index db820a8952..026f13920c 100644
+--- a/dlls/ntdll/unix/virtual.c
++++ b/dlls/ntdll/unix/virtual.c
+@@ -4581,7 +4581,7 @@ static NTSTATUS grow_thread_stack( struct thread_data *data, char *page, struct
+     mprotect_range( page, host_page_size, 0, 0 );
+     if (page >= stack_info->start + host_page_size + stack_info->guaranteed)
+     {
+-        set_page_vprot_bits( page - host_page_size, host_page_size, VPROT_COMMITTED | VPROT_GUARD, 0 );
++        set_page_vprot_bits( page - host_page_size, host_page_size, VPROT_COMMITTED | VPROT_READ | VPROT_WRITE | VPROT_GUARD, 0 );
+         mprotect_range( page - host_page_size, host_page_size, 0, 0 );
+     }
+     else  /* inside guaranteed space -> overflow exception */
+-- 
+2.53.0
+

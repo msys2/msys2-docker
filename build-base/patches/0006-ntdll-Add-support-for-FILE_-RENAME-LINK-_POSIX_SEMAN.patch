@@ -1,7 +1,7 @@
-From 22b9f1c5a5bba62a524b2cb1c6c44f9e88a5a6b9 Mon Sep 17 00:00:00 2001
+From bc8ef265626e9d8c8230e7bce5d49405a2b779e6 Mon Sep 17 00:00:00 2001
 From: Joel Holdsworth <joel@airwebreathe.org.uk>
 Date: Mon, 7 Aug 2023 12:05:47 +0100
-Subject: [PATCH 09/15] ntdll: Add support for
+Subject: [PATCH 6/6] ntdll: Add support for
  FILE_{RENAME,LINK}_POSIX_SEMANTICS.
 
 Signed-off-by: Joel Holdsworth <joel@airwebreathe.org.uk>
@@ -12,10 +12,10 @@ Signed-off-by: Joel Holdsworth <joel@airwebreathe.org.uk>
  3 files changed, 84 insertions(+), 31 deletions(-)
 
 diff --git a/dlls/ntdll/tests/file.c b/dlls/ntdll/tests/file.c
-index ef0ede1288..30f8554051 100644
+index 3e97cfef35..71f9eaa08e 100644
 --- a/dlls/ntdll/tests/file.c
 +++ b/dlls/ntdll/tests/file.c
-@@ -2458,10 +2458,10 @@ static void test_file_rename_information_ex(void)
+@@ -2455,10 +2455,10 @@ static void test_file_rename_information_ex(void)
  
      io.Status = 0xdeadbeef;
      res = pNtSetInformationFile( handle, &io, fri, sizeof(FILE_RENAME_INFORMATION) + fri->FileNameLength, FileRenameInformationEx );
@@ -29,7 +29,7 @@ index ef0ede1288..30f8554051 100644
      fileDeleted = GetFileAttributesW( newpath ) == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_FILE_NOT_FOUND;
      ok( !fileDeleted, "file should exist\n" );
  
-@@ -3464,8 +3464,8 @@ static void test_file_link_information_ex(void)
+@@ -3461,8 +3461,8 @@ static void test_file_link_information_ex(void)
      io.Status = 0xdeadbeef;
      res = pNtSetInformationFile( handle, &io, fli, sizeof(FILE_LINK_INFORMATION) + fli->FileNameLength, FileLinkInformationEx );
      todo_wine ok( io.Status == 0xdeadbeef, "io.Status expected 0xdeadbeef, got %lx\n", io.Status );
@@ -40,7 +40,7 @@ index ef0ede1288..30f8554051 100644
      fileDeleted = GetFileAttributesW( oldpath ) == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_FILE_NOT_FOUND;
      ok( !fileDeleted, "file should exist\n" );
      fileDeleted = GetFileAttributesW( newpath ) == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_FILE_NOT_FOUND;
-@@ -3501,10 +3501,10 @@ static void test_file_link_information_ex(void)
+@@ -3498,10 +3498,10 @@ static void test_file_link_information_ex(void)
  
      io.Status = 0xdeadbeef;
      res = pNtSetInformationFile( handle, &io, fli, sizeof(FILE_LINK_INFORMATION) + fli->FileNameLength, FileLinkInformationEx );
@@ -55,7 +55,7 @@ index ef0ede1288..30f8554051 100644
      fileDeleted = GetFileAttributesW( oldpath ) == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_FILE_NOT_FOUND;
      ok( !fileDeleted, "file should exist\n" );
      fileDeleted = GetFileAttributesW( newpath ) == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_FILE_NOT_FOUND;
-@@ -3624,8 +3624,8 @@ static void test_file_link_information_ex(void)
+@@ -3621,8 +3621,8 @@ static void test_file_link_information_ex(void)
      io.Status = 0xdeadbeef;
      res = pNtSetInformationFile( handle, &io, fli, sizeof(FILE_LINK_INFORMATION) + fli->FileNameLength, FileLinkInformationEx );
      todo_wine ok( io.Status == 0xdeadbeef, "io.Status expected 0xdeadbeef, got %lx\n", io.Status );
@@ -67,10 +67,10 @@ index ef0ede1288..30f8554051 100644
      ok( !fileDeleted, "file should exist\n" );
      fileDeleted = GetFileAttributesW( newpath ) == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_FILE_NOT_FOUND;
 diff --git a/dlls/ntdll/unix/file.c b/dlls/ntdll/unix/file.c
-index 943af86e58..8c60c21a0c 100644
+index 48a532b1d2..4f13cb04be 100644
 --- a/dlls/ntdll/unix/file.c
 +++ b/dlls/ntdll/unix/file.c
-@@ -5430,7 +5430,9 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
+@@ -5437,7 +5437,9 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
              else
                  flags = info->Flags;
  
@@ -81,7 +81,7 @@ index 943af86e58..8c60c21a0c 100644
                  FIXME( "unsupported flags: %#x\n", flags );
  
              name_str.Buffer = info->FileName;
-@@ -5475,7 +5477,9 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
+@@ -5482,7 +5484,9 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
              else
                  flags = info->Flags;
  
@@ -93,10 +93,10 @@ index 943af86e58..8c60c21a0c 100644
  
              name_str.Buffer = info->FileName;
 diff --git a/server/fd.c b/server/fd.c
-index efb6e8e76b..222025f29f 100644
+index 9c88afa10f..c9b20853aa 100644
 --- a/server/fd.c
 +++ b/server/fd.c
-@@ -2911,13 +2911,6 @@ static void set_fd_name( struct fd *fd, struct fd *root, const char *nameptr, da
+@@ -2809,13 +2809,6 @@ static void set_fd_name( struct fd *fd, struct fd *root, const char *nameptr, da
              goto failed;
          }
  
@@ -110,7 +110,7 @@ index efb6e8e76b..222025f29f 100644
          /* read-only files cannot be replaced */
          if (!(st.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH)) &&
              !(flags & FILE_RENAME_IGNORE_READONLY_ATTRIBUTE))
-@@ -2926,23 +2919,79 @@ static void set_fd_name( struct fd *fd, struct fd *root, const char *nameptr, da
+@@ -2824,23 +2817,79 @@ static void set_fd_name( struct fd *fd, struct fd *root, const char *nameptr, da
              goto failed;
          }
  

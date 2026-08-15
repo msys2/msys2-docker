@@ -1,7 +1,7 @@
-From 5d3d117e847cd6ef418a242c45e9563ff7637aad Mon Sep 17 00:00:00 2001
+From fb550183a1ae457f6294dec4d280834b635af64e Mon Sep 17 00:00:00 2001
 From: Joel Holdsworth <joel@airwebreathe.org.uk>
 Date: Wed, 6 May 2026 16:16:26 -0700
-Subject: [PATCH 07/15] ntdll/test: Add tests for FILE_RENAME_POSIX_SEMANTICS.
+Subject: [PATCH 4/6] ntdll/test: Add tests for FILE_RENAME_POSIX_SEMANTICS.
 
 Signed-off-by: Joel Holdsworth <joel@airwebreathe.org.uk>
 ---
@@ -9,10 +9,10 @@ Signed-off-by: Joel Holdsworth <joel@airwebreathe.org.uk>
  1 file changed, 189 insertions(+), 1 deletion(-)
 
 diff --git a/dlls/ntdll/tests/file.c b/dlls/ntdll/tests/file.c
-index e99ac24bfd..bff0c6a115 100644
+index 82e32194ff..ced4a14e66 100644
 --- a/dlls/ntdll/tests/file.c
 +++ b/dlls/ntdll/tests/file.c
-@@ -2308,7 +2308,7 @@ static void test_file_rename_information_ex(void)
+@@ -2305,7 +2305,7 @@ static void test_file_rename_information_ex(void)
      static const WCHAR fooW[] = {'f','o','o',0};
      WCHAR tmp_path[MAX_PATH], oldpath[MAX_PATH + 16], newpath[MAX_PATH + 16];
      FILE_RENAME_INFORMATION *fri;
@@ -21,7 +21,7 @@ index e99ac24bfd..bff0c6a115 100644
      UNICODE_STRING name_str;
      HANDLE handle, handle2;
      IO_STATUS_BLOCK io;
-@@ -2399,6 +2399,194 @@ static void test_file_rename_information_ex(void)
+@@ -2396,6 +2396,194 @@ static void test_file_rename_information_ex(void)
      HeapFree( GetProcessHeap(), 0, fri );
      delete_object( oldpath );
      delete_object( newpath );
