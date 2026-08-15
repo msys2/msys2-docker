@@ -1,7 +1,7 @@
-From 28345f01b171b77aa9187fefa6069d09a03556d2 Mon Sep 17 00:00:00 2001
+From 5e9332dcb50c9d2f64191877bd37e6475ce1be94 Mon Sep 17 00:00:00 2001
 From: Joel Holdsworth <joel@airwebreathe.org.uk>
 Date: Wed, 20 Sep 2023 11:29:26 +0100
-Subject: [PATCH 08/15] ntdll/test: Add tests for FILE_LINK_POSIX_SEMANTICS.
+Subject: [PATCH 5/6] ntdll/test: Add tests for FILE_LINK_POSIX_SEMANTICS.
 
 Signed-off-by: Joel Holdsworth <joel@airwebreathe.org.uk>
 ---
@@ -9,10 +9,10 @@ Signed-off-by: Joel Holdsworth <joel@airwebreathe.org.uk>
  1 file changed, 198 insertions(+), 1 deletion(-)
 
 diff --git a/dlls/ntdll/tests/file.c b/dlls/ntdll/tests/file.c
-index bff0c6a115..ef0ede1288 100644
+index ced4a14e66..3e97cfef35 100644
 --- a/dlls/ntdll/tests/file.c
 +++ b/dlls/ntdll/tests/file.c
-@@ -3353,7 +3353,7 @@ static void test_file_link_information_ex(void)
+@@ -3350,7 +3350,7 @@ static void test_file_link_information_ex(void)
      static const WCHAR fooW[] = {'f','o','o',0};
      WCHAR tmp_path[MAX_PATH], oldpath[MAX_PATH + 16], newpath[MAX_PATH + 16];
      FILE_LINK_INFORMATION *fli;
@@ -21,7 +21,7 @@ index bff0c6a115..ef0ede1288 100644
      UNICODE_STRING name_str;
      HANDLE handle, handle2;
      IO_STATUS_BLOCK io;
-@@ -3438,6 +3438,203 @@ static void test_file_link_information_ex(void)
+@@ -3435,6 +3435,203 @@ static void test_file_link_information_ex(void)
      HeapFree( GetProcessHeap(), 0, fli );
      delete_object( oldpath );
      delete_object( newpath );
