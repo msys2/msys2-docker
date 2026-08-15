@@ -1,0 +1,206 @@
+From 22b9f1c5a5bba62a524b2cb1c6c44f9e88a5a6b9 Mon Sep 17 00:00:00 2001
+From: Joel Holdsworth <joel@airwebreathe.org.uk>
+Date: Mon, 7 Aug 2023 12:05:47 +0100
+Subject: [PATCH 09/15] ntdll: Add support for
+ FILE_{RENAME,LINK}_POSIX_SEMANTICS.
+
+Signed-off-by: Joel Holdsworth <joel@airwebreathe.org.uk>
+---
+ dlls/ntdll/tests/file.c | 22 +++++------
+ dlls/ntdll/unix/file.c  |  8 +++-
+ server/fd.c             | 85 ++++++++++++++++++++++++++++++++---------
+ 3 files changed, 84 insertions(+), 31 deletions(-)
+
+diff --git a/dlls/ntdll/tests/file.c b/dlls/ntdll/tests/file.c
+index ef0ede1288..30f8554051 100644
+--- a/dlls/ntdll/tests/file.c
++++ b/dlls/ntdll/tests/file.c
+@@ -2458,10 +2458,10 @@ static void test_file_rename_information_ex(void)
+ 
+     io.Status = 0xdeadbeef;
+     res = pNtSetInformationFile( handle, &io, fri, sizeof(FILE_RENAME_INFORMATION) + fri->FileNameLength, FileRenameInformationEx );
+-    todo_wine ok( io.Status == STATUS_SUCCESS, "io.Status expected STATUS_SUCCESS, got %lx\n", io.Status );
+-    todo_wine ok( res == STATUS_SUCCESS, "res expected STATUS_SUCCESS, got %lx\n", res );
++    ok( io.Status == STATUS_SUCCESS, "io.Status expected STATUS_SUCCESS, got %lx\n", io.Status );
++    ok( res == STATUS_SUCCESS, "res expected STATUS_SUCCESS, got %lx\n", res );
+     fileDeleted = GetFileAttributesW( oldpath ) == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_FILE_NOT_FOUND;
+-    todo_wine ok( fileDeleted, "file should not exist\n" );
++    ok( fileDeleted, "file should not exist\n" );
+     fileDeleted = GetFileAttributesW( newpath ) == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_FILE_NOT_FOUND;
+     ok( !fileDeleted, "file should exist\n" );
+ 
+@@ -3464,8 +3464,8 @@ static void test_file_link_information_ex(void)
+     io.Status = 0xdeadbeef;
+     res = pNtSetInformationFile( handle, &io, fli, sizeof(FILE_LINK_INFORMATION) + fli->FileNameLength, FileLinkInformationEx );
+     todo_wine ok( io.Status == 0xdeadbeef, "io.Status expected 0xdeadbeef, got %lx\n", io.Status );
+-    todo_wine ok( res == STATUS_SHARING_VIOLATION || res == STATUS_NOT_SUPPORTED,
+-                  "res expected STATUS_SHARING_VIOLATION or STATUS_NOT_SUPPORTED, got %lx\n", res );
++    ok( res == STATUS_SHARING_VIOLATION || res == STATUS_NOT_SUPPORTED,
++        "res expected STATUS_SHARING_VIOLATION or STATUS_NOT_SUPPORTED, got %lx\n", res );
+     fileDeleted = GetFileAttributesW( oldpath ) == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_FILE_NOT_FOUND;
+     ok( !fileDeleted, "file should exist\n" );
+     fileDeleted = GetFileAttributesW( newpath ) == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_FILE_NOT_FOUND;
+@@ -3501,10 +3501,10 @@ static void test_file_link_information_ex(void)
+ 
+     io.Status = 0xdeadbeef;
+     res = pNtSetInformationFile( handle, &io, fli, sizeof(FILE_LINK_INFORMATION) + fli->FileNameLength, FileLinkInformationEx );
+-    todo_wine ok( io.Status == 0xdeadbeef || io.Status == STATUS_SUCCESS,
+-                  "io.Status expected 0xdeadbeef or STATUS_SUCCESS, got %lx\n", io.Status );
+-    todo_wine ok( res == STATUS_SUCCESS || res == STATUS_NOT_SUPPORTED,
+-                  "res expected STATUS_SUCCESS or STATUS_NOT_SUPPORTED, got %lx\n", res );
++    ok( io.Status == 0xdeadbeef || io.Status == STATUS_SUCCESS,
++        "io.Status expected 0xdeadbeef or STATUS_SUCCESS, got %lx\n", io.Status );
++    ok( res == STATUS_SUCCESS || res == STATUS_NOT_SUPPORTED,
++        "res expected STATUS_SUCCESS or STATUS_NOT_SUPPORTED, got %lx\n", res );
+     fileDeleted = GetFileAttributesW( oldpath ) == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_FILE_NOT_FOUND;
+     ok( !fileDeleted, "file should exist\n" );
+     fileDeleted = GetFileAttributesW( newpath ) == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_FILE_NOT_FOUND;
+@@ -3624,8 +3624,8 @@ static void test_file_link_information_ex(void)
+     io.Status = 0xdeadbeef;
+     res = pNtSetInformationFile( handle, &io, fli, sizeof(FILE_LINK_INFORMATION) + fli->FileNameLength, FileLinkInformationEx );
+     todo_wine ok( io.Status == 0xdeadbeef, "io.Status expected 0xdeadbeef, got %lx\n", io.Status );
+-    todo_wine ok( res == STATUS_FILE_IS_A_DIRECTORY || res == STATUS_NOT_SUPPORTED,
+-                  "res expected STATUS_FILE_IS_A_DIRECTORY or STATUS_NOT_SUPPORTED, got %lx\n", res );
++    ok( res == STATUS_FILE_IS_A_DIRECTORY || res == STATUS_NOT_SUPPORTED,
++        "res expected STATUS_FILE_IS_A_DIRECTORY or STATUS_NOT_SUPPORTED, got %lx\n", res );
+     fileDeleted = GetFileAttributesW( oldpath ) == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_FILE_NOT_FOUND;
+     ok( !fileDeleted, "file should exist\n" );
+     fileDeleted = GetFileAttributesW( newpath ) == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_FILE_NOT_FOUND;
+diff --git a/dlls/ntdll/unix/file.c b/dlls/ntdll/unix/file.c
+index 943af86e58..8c60c21a0c 100644
+--- a/dlls/ntdll/unix/file.c
++++ b/dlls/ntdll/unix/file.c
+@@ -5430,7 +5430,9 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
+             else
+                 flags = info->Flags;
+ 
+-            if (flags & ~(FILE_RENAME_REPLACE_IF_EXISTS | FILE_RENAME_IGNORE_READONLY_ATTRIBUTE))
++            if (flags & ~(FILE_RENAME_REPLACE_IF_EXISTS |
++                          FILE_RENAME_IGNORE_READONLY_ATTRIBUTE |
++                          FILE_RENAME_POSIX_SEMANTICS))
+                 FIXME( "unsupported flags: %#x\n", flags );
+ 
+             name_str.Buffer = info->FileName;
+@@ -5475,7 +5477,9 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
+             else
+                 flags = info->Flags;
+ 
+-            if (flags & ~(FILE_LINK_REPLACE_IF_EXISTS | FILE_LINK_IGNORE_READONLY_ATTRIBUTE))
++            if (flags & ~(FILE_LINK_REPLACE_IF_EXISTS |
++                          FILE_LINK_IGNORE_READONLY_ATTRIBUTE |
++                          FILE_LINK_POSIX_SEMANTICS))
+                 FIXME( "unsupported flags: %#x\n", flags );
+ 
+             name_str.Buffer = info->FileName;
+diff --git a/server/fd.c b/server/fd.c
+index efb6e8e76b..222025f29f 100644
+--- a/server/fd.c
++++ b/server/fd.c
+@@ -2911,13 +2911,6 @@ static void set_fd_name( struct fd *fd, struct fd *root, const char *nameptr, da
+             goto failed;
+         }
+ 
+-        /* can't replace directories or special files */
+-        if (!S_ISREG( st.st_mode ))
+-        {
+-            set_error( STATUS_ACCESS_DENIED );
+-            goto failed;
+-        }
+-
+         /* read-only files cannot be replaced */
+         if (!(st.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH)) &&
+             !(flags & FILE_RENAME_IGNORE_READONLY_ATTRIBUTE))
+@@ -2926,23 +2919,79 @@ static void set_fd_name( struct fd *fd, struct fd *root, const char *nameptr, da
+             goto failed;
+         }
+ 
+-        /* can't replace an opened file */
+-        if ((inode = get_inode( st.st_dev, st.st_ino, -1 )))
++        if (flags & FILE_RENAME_POSIX_SEMANTICS)
+         {
+-            int is_empty = list_empty( &inode->open );
+-            release_object( inode );
+-            if (!is_empty)
++            /* can't replace a file with a directory with FILE_RENAME_POSIX_SEMANTICS */
++            if (S_ISDIR( st2.st_mode ) && !S_ISDIR( st.st_mode ))
+             {
+-                set_error( STATUS_ACCESS_DENIED );
++                set_error( STATUS_NOT_A_DIRECTORY );
+                 goto failed;
+             }
+-        }
+ 
+-        /* link() expects that the target doesn't exist */
+-        /* rename() cannot replace files with directories */
+-        if (create_link || S_ISDIR( st2.st_mode ))
++            /* can't replace an open file that was not opened with FILE_SHARE_DELETE */
++            if ((inode = get_inode( st.st_dev, st.st_ino, -1 )))
++            {
++                unsigned int sharing = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
++                struct fd *fd_ptr;
++
++                LIST_FOR_EACH_ENTRY( fd_ptr, &inode->open, struct fd, inode_entry )
++                {
++                    /* if access mode is 0, sharing mode is ignored */
++                    if (fd_ptr->access &
++                        (FILE_READ_DATA | FILE_EXECUTE | FILE_WRITE_DATA | FILE_APPEND_DATA | DELETE))
++                    {
++                        sharing &= fd_ptr->sharing;
++                    }
++                }
++
++                release_object( inode );
++
++                if (!(sharing & FILE_SHARE_DELETE)) {
++                    set_error( STATUS_SHARING_VIOLATION );
++                    goto failed;
++                }
++            }
++
++            /* link() expects that the target doesn't exist */
++            /* rename() cannot replace files with directories */
++            if (S_ISDIR( st2.st_mode ) && S_ISDIR( st.st_mode ))
++            {
++                if (rmdir( name ))
++                {
++                    file_set_error();
++                    goto failed;
++                }
++            }
++            else if ((create_link || S_ISDIR( st2.st_mode )) && unlink(name))
++            {
++                file_set_error();
++                goto failed;
++            }
++        }
++        else
+         {
+-            if (unlink( name ))
++            /* can't replace directories or special files */
++            if (!S_ISREG( st.st_mode ))
++            {
++                set_error( STATUS_ACCESS_DENIED );
++                goto failed;
++            }
++
++            /* can't replace an opened file without FILE_RENAME_POSIX_SEMANTICS */
++            if ((inode = get_inode( st.st_dev, st.st_ino, -1 )))
++            {
++                int is_empty = list_empty( &inode->open );
++                release_object( inode );
++                if (!is_empty)
++                {
++                    set_error( STATUS_ACCESS_DENIED );
++                    goto failed;
++                }
++            }
++
++            /* link() expects that the target doesn't exist */
++            /* rename() cannot replace files with directories */
++            if ((create_link || S_ISDIR( st2.st_mode )) && unlink( name ))
+             {
+                 file_set_error();
+                 goto failed;
+-- 
+2.53.0
+

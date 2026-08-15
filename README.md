@@ -31,9 +31,9 @@ Acknowledgments:
 * The Dockerfile is inspired by the following
   [Dockerfile](https://github.com/pojntfx/hydrapp/blob/main/hydrapp/pkg/builders/msi/Dockerfile)
   by [@pojntfx (Felicitas Pojtinger)](https://github.com/pojntfx)
-* The [Wine fork](https://gitlab.winehq.org/jhol/wine) including the necessary
-  MSYS2/Cygwin specific changes is developed by [@jhol (Joel
-  Holdsworth)](https://github.com/jhol)
+* The necessary Wine patches for MSYS2/Cygwin are developed in the
+  [Wine fork](https://gitlab.winehq.org/jhol/wine) by [@jhol (Joel
+  Holdsworth)](https://github.com/jhol).
 
 ## Windows
 

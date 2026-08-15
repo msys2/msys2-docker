@@ -1,0 +1,30 @@
+From 3bda694d27ed1657b1b58a135783416fb01dbb5c Mon Sep 17 00:00:00 2001
+From: Joel Holdsworth <joel@airwebreathe.org.uk>
+Date: Mon, 11 May 2026 09:44:52 -0700
+Subject: [PATCH 12/15] kernel32/tests: Add test for
+ FILE_SUPPORTS_OPEN_BY_FILE_ID on volume handles.
+
+Real NTFS volumes on Windows report FILE_SUPPORTS_OPEN_BY_FILE_ID in their
+filesystem attribute flags. Add a test to verify this flag is set when
+querying volume information through a volume device handle, which exercises
+the mountmgr code path.
+---
+ dlls/kernel32/tests/volume.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/dlls/kernel32/tests/volume.c b/dlls/kernel32/tests/volume.c
+index a0f249857e..1ec21a8a6e 100644
+--- a/dlls/kernel32/tests/volume.c
++++ b/dlls/kernel32/tests/volume.c
+@@ -2019,6 +2019,8 @@ static void test_GetVolumeInformationByHandle(void)
+     ret = pGetVolumeInformationByHandleW( file, label, ARRAY_SIZE(label), &serial,
+             &filename_len, &flags, fsname, ARRAY_SIZE(fsname) );
+     ok(ret, "got error %lu\n", GetLastError());
++    todo_wine ok(flags & FILE_SUPPORTS_OPEN_BY_FILE_ID,
++            "expected FILE_SUPPORTS_OPEN_BY_FILE_ID to be set, got %#lx\n", flags);
+ 
+     memset(buffer, 0, sizeof(buffer));
+     status = NtQueryVolumeInformationFile( file, &io, buffer, sizeof(buffer), FileFsVolumeInformation );
+-- 
+2.53.0
+

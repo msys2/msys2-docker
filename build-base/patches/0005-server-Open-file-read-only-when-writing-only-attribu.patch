@@ -1,0 +1,67 @@
+From 67a9631ab7871c0cce780435532264575f33ea2a Mon Sep 17 00:00:00 2001
+From: Joel Holdsworth <joel@airwebreathe.org.uk>
+Date: Sun, 5 Apr 2026 17:06:41 -0700
+Subject: [PATCH 05/15] server: Open file read-only when writing only
+ attributes.
+
+Wine-Bug: https://bugs.winehq.org/show_bug.cgi?id=56925
+---
+ dlls/ntdll/tests/file.c | 4 ++--
+ server/file.c           | 4 ++--
+ server/file.h           | 2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/dlls/ntdll/tests/file.c b/dlls/ntdll/tests/file.c
+index b19c85b18f..e99ac24bfd 100644
+--- a/dlls/ntdll/tests/file.c
++++ b/dlls/ntdll/tests/file.c
+@@ -5966,12 +5966,12 @@ static void test_file_readonly_access(void)
+ 
+     /* NtOpenFile FILE_{READ,WRITE}_ATTRIBUTES */
+     status = pNtOpenFile(&handle, FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES, &attr, &io, default_sharing, FILE_NON_DIRECTORY_FILE);
+-    todo_wine ok(status == STATUS_SUCCESS, "expected STATUS_SUCCESS, got %#lx.\n", status);
++    ok(status == STATUS_SUCCESS, "expected STATUS_SUCCESS, got %#lx.\n", status);
+     CloseHandle(handle);
+ 
+     /* NtOpenFile FILE_{READ,WRITE}_EA */
+     status = pNtOpenFile(&handle, FILE_READ_EA | FILE_WRITE_EA, &attr, &io, default_sharing, FILE_NON_DIRECTORY_FILE);
+-    todo_wine ok(status == STATUS_SUCCESS, "expected STATUS_SUCCESS, got %#lx.\n", status);
++    ok(status == STATUS_SUCCESS, "expected STATUS_SUCCESS, got %#lx.\n", status);
+     CloseHandle(handle);
+ 
+     /* NtOpenFile DELETE without FILE_DELETE_ON_CLOSE */
+diff --git a/server/file.c b/server/file.c
+index 7b3324e993..2a7ee5381e 100644
+--- a/server/file.c
++++ b/server/file.c
+@@ -232,12 +232,12 @@ static struct object *create_file( struct fd *root, const char *nameptr, data_si
+     {
+     case FILE_CREATE:       flags = O_CREAT | O_EXCL; break;
+     case FILE_OVERWRITE_IF: /* FIXME: the difference is whether we trash existing attr or not */
+-                            access |= FILE_WRITE_ATTRIBUTES;
++                            access |= FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES;
+     case FILE_SUPERSEDE:    flags = O_CREAT | O_TRUNC; break;
+     case FILE_OPEN:         flags = 0; break;
+     case FILE_OPEN_IF:      flags = O_CREAT; break;
+     case FILE_OVERWRITE:    flags = O_TRUNC;
+-                            access |= FILE_WRITE_ATTRIBUTES; break;
++                            access |= FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES; break;
+     default:                set_error( STATUS_INVALID_PARAMETER ); goto done;
+     }
+ 
+diff --git a/server/file.h b/server/file.h
+index e1485e4d5f..b77cffbb44 100644
+--- a/server/file.h
++++ b/server/file.h
+@@ -297,7 +297,7 @@ static inline int async_queued( struct async_queue *queue )
+ #define FILE_UNIX_READ_ACCESS (FILE_READ_DATA|FILE_READ_ATTRIBUTES|FILE_READ_EA)
+ 
+ /* access rights that require Unix write permission */
+-#define FILE_UNIX_WRITE_ACCESS (FILE_WRITE_DATA|FILE_APPEND_DATA|FILE_WRITE_ATTRIBUTES|FILE_WRITE_EA)
++#define FILE_UNIX_WRITE_ACCESS (FILE_WRITE_DATA|FILE_APPEND_DATA)
+ 
+ /* magic file access rights for mappings */
+ #define FILE_MAPPING_IMAGE  0x80000000  /* set for SEC_IMAGE mappings */
+-- 
+2.53.0
+

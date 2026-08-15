@@ -10,14 +10,15 @@ RUN apt update && \
     rm -rf /var/lib/apt/lists/*
 
 # Build and install patched WINE (see https://github.com/msys2/MSYS2-packages/issues/682)
-RUN git clone --filter=tree:0 https://gitlab.winehq.org/jhol/wine.git /tmp/winesrc && \
+COPY patches /tmp/wine-patches
+RUN git clone --filter=tree:0 https://gitlab.winehq.org/wine/wine.git /tmp/winesrc && \
     cd /tmp/winesrc && \
-    # https://gitlab.winehq.org/jhol/wine/-/commits/msys2-hacks-23
-    git checkout 5c414526d58855b42478ed7ad7faf6654f646b04 && \
+    git checkout wine-11.8 && \
+    git apply /tmp/wine-patches/*.patch && \
     ./configure --disable-tests --enable-win64 --with-mingw --enable-archs=x86_64,i386 && \
     make -j $(nproc) && \
     env DESTDIR=/wine make -j $(nproc) install && \
-    rm -rf /tmp/winesrc && \
+    rm -rf /tmp/winesrc /tmp/wine-patches && \
     # Clean things up
     rm -Rf /wine/usr/local/include && \
     find /wine -type f -exec strip --strip-all {} \;
