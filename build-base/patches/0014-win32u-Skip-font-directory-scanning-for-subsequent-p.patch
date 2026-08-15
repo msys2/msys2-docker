@@ -1,0 +1,56 @@
+From c6ac8ee707e3158607eb0870c54e31f9df77171d Mon Sep 17 00:00:00 2001
+From: Joel Holdsworth <joel@airwebreathe.org.uk>
+Date: Thu, 7 May 2026 10:54:01 -0700
+Subject: [PATCH 14/15] win32u: Skip font directory scanning for subsequent
+ processes using cache
+
+Move the font cache check before the expensive directory scanning in
+font_init(). When a volatile font cache already exists (populated by the
+first process in the wineserver session), subsequent processes load font
+metadata from the cache instead of rescanning all font directories and
+opening/parsing every font file.
+
+This eliminates tens of thousands of file opens per subprocess spawn on
+systems with many fonts (e.g. NixOS with Noto fonts), reducing
+per-process font initialization overhead significantly.
+---
+ dlls/win32u/font.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/dlls/win32u/font.c b/dlls/win32u/font.c
+index dcc75e8096..1daf5bc93b 100644
+--- a/dlls/win32u/font.c
++++ b/dlls/win32u/font.c
+@@ -6749,10 +6749,6 @@ UINT font_init(void)
+     if (!(font_funcs = init_freetype_lib()))
+         return dpi;
+ 
+-    load_system_bitmap_fonts();
+-    load_file_system_fonts();
+-    font_funcs->load_fonts();
+-
+     attr.Attributes = OBJ_OPENIF;
+     attr.ObjectName = &name;
+     name.Buffer = wine_font_mutexW;
+@@ -6766,6 +6762,10 @@ UINT font_init(void)
+ 
+     if (disposition == REG_CREATED_NEW_KEY)
+     {
++        /* First process: scan font directories and build cache. */
++        load_system_bitmap_fonts();
++        load_file_system_fonts();
++        font_funcs->load_fonts();
+         load_registry_fonts();
+         update_external_font_keys();
+     }
+@@ -6774,6 +6774,7 @@ UINT font_init(void)
+ 
+     if (disposition != REG_CREATED_NEW_KEY)
+     {
++        /* Subsequent processes: load from cache, skip expensive directory scan. */
+         load_registry_fonts();
+         load_font_list_from_cache();
+     }
+-- 
+2.53.0
+

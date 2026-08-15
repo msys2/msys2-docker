@@ -1,0 +1,26 @@
+From 27809b4da951304f868dce1dabfc2322510e180f Mon Sep 17 00:00:00 2001
+From: Joel Holdsworth <joel@airwebreathe.org.uk>
+Date: Tue, 12 May 2026 09:39:37 -0700
+Subject: [PATCH 06/15] server: Don't require Unix read permission for reading
+ only attributes.
+
+---
+ server/file.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/server/file.h b/server/file.h
+index b77cffbb44..12e9158a0a 100644
+--- a/server/file.h
++++ b/server/file.h
+@@ -294,7 +294,7 @@ static inline int async_queued( struct async_queue *queue )
+ 
+ 
+ /* access rights that require Unix read permission */
+-#define FILE_UNIX_READ_ACCESS (FILE_READ_DATA|FILE_READ_ATTRIBUTES|FILE_READ_EA)
++#define FILE_UNIX_READ_ACCESS (FILE_READ_DATA)
+ 
+ /* access rights that require Unix write permission */
+ #define FILE_UNIX_WRITE_ACCESS (FILE_WRITE_DATA|FILE_APPEND_DATA)
+-- 
+2.53.0
+
