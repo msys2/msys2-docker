@@ -1,7 +1,7 @@
-From bc8ef265626e9d8c8230e7bce5d49405a2b779e6 Mon Sep 17 00:00:00 2001
+From bdcee9e75bd0d98c0330c47242ae71ce209ef3b0 Mon Sep 17 00:00:00 2001
 From: Joel Holdsworth <joel@airwebreathe.org.uk>
 Date: Mon, 7 Aug 2023 12:05:47 +0100
-Subject: [PATCH 6/6] ntdll: Add support for
+Subject: [PATCH 7/7] ntdll: Add support for
  FILE_{RENAME,LINK}_POSIX_SEMANTICS.
 
 Signed-off-by: Joel Holdsworth <joel@airwebreathe.org.uk>
@@ -12,7 +12,7 @@ Signed-off-by: Joel Holdsworth <joel@airwebreathe.org.uk>
  3 files changed, 84 insertions(+), 31 deletions(-)
 
 diff --git a/dlls/ntdll/tests/file.c b/dlls/ntdll/tests/file.c
-index 3e97cfef35..71f9eaa08e 100644
+index 78b65fb16e..80516f473e 100644
 --- a/dlls/ntdll/tests/file.c
 +++ b/dlls/ntdll/tests/file.c
 @@ -2455,10 +2455,10 @@ static void test_file_rename_information_ex(void)
@@ -67,10 +67,10 @@ index 3e97cfef35..71f9eaa08e 100644
      ok( !fileDeleted, "file should exist\n" );
      fileDeleted = GetFileAttributesW( newpath ) == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_FILE_NOT_FOUND;
 diff --git a/dlls/ntdll/unix/file.c b/dlls/ntdll/unix/file.c
-index 48a532b1d2..4f13cb04be 100644
+index d9b9e578d6..cb035c263d 100644
 --- a/dlls/ntdll/unix/file.c
 +++ b/dlls/ntdll/unix/file.c
-@@ -5437,7 +5437,9 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
+@@ -5443,7 +5443,9 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
              else
                  flags = info->Flags;
  
@@ -81,7 +81,7 @@ index 48a532b1d2..4f13cb04be 100644
                  FIXME( "unsupported flags: %#x\n", flags );
  
              name_str.Buffer = info->FileName;
-@@ -5482,7 +5484,9 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
+@@ -5488,7 +5490,9 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
              else
                  flags = info->Flags;
  
@@ -93,10 +93,10 @@ index 48a532b1d2..4f13cb04be 100644
  
              name_str.Buffer = info->FileName;
 diff --git a/server/fd.c b/server/fd.c
-index 9c88afa10f..c9b20853aa 100644
+index 1ae7ebe6ce..f2b11cc74a 100644
 --- a/server/fd.c
 +++ b/server/fd.c
-@@ -2809,13 +2809,6 @@ static void set_fd_name( struct fd *fd, struct fd *root, const char *nameptr, da
+@@ -2812,13 +2812,6 @@ static void set_fd_name( struct fd *fd, struct fd *root, const char *nameptr, da
              goto failed;
          }
  
@@ -110,7 +110,7 @@ index 9c88afa10f..c9b20853aa 100644
          /* read-only files cannot be replaced */
          if (!(st.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH)) &&
              !(flags & FILE_RENAME_IGNORE_READONLY_ATTRIBUTE))
-@@ -2824,23 +2817,79 @@ static void set_fd_name( struct fd *fd, struct fd *root, const char *nameptr, da
+@@ -2827,23 +2820,79 @@ static void set_fd_name( struct fd *fd, struct fd *root, const char *nameptr, da
              goto failed;
          }
  
@@ -202,5 +202,5 @@ index 9c88afa10f..c9b20853aa 100644
                  file_set_error();
                  goto failed;
 -- 
-2.53.0
+2.55.0.windows.4
 
