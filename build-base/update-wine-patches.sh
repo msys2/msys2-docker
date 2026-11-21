@@ -2,11 +2,11 @@
 
 set -euo pipefail
 
-upstream_tag=wine-11.15
+upstream_tag=wine-11.16
 upstream_url=https://gitlab.winehq.org/wine/wine.git
 fork_url=https://gitlab.winehq.org/jhol/wine.git
-fork_branch=msys2-hacks-25
-fork_commit=bdcee9e75bd0d98c0330c47242ae71ce209ef3b0
+fork_branch=msys2-hacks-26
+fork_commit=6e9d59d46dab00f5613373a2e910b3cf60b787c9
 
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 patch_dir="$script_dir/patches"

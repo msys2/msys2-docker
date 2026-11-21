@@ -1,4 +1,4 @@
-From 64376e73535091acce293c67b946ad9ad02a9849 Mon Sep 17 00:00:00 2001
+From dbd5ab23a2f793b726154aea7093ea594a32cf21 Mon Sep 17 00:00:00 2001
 From: Joel Holdsworth <joel@airwebreathe.org.uk>
 Date: Tue, 13 May 2025 11:46:19 -0700
 Subject: [PATCH 1/7] ntdll/tests: Test opening read-only files only for
@@ -34,5 +34,5 @@ index f741ffbfd3..fe7b6e1910 100644
      status = pNtOpenFile(&handle, DELETE, &attr, &io, default_sharing, FILE_NON_DIRECTORY_FILE);
      ok(status == STATUS_SUCCESS, "expected STATUS_SUCCESS, got %#lx.\n", status);
 -- 
-2.55.0.windows.4
+2.55.0
 

@@ -1,4 +1,4 @@
-From b1c270340d0141fbcdcb87ed51bd437e91d3037d Mon Sep 17 00:00:00 2001
+From 8601ce6c186ee4b12e14ca86e1a955659d7a487c Mon Sep 17 00:00:00 2001
 From: Joel Holdsworth <joel@airwebreathe.org.uk>
 Date: Wed, 6 May 2026 16:16:26 -0700
 Subject: [PATCH 5/7] ntdll/test: Add tests for FILE_RENAME_POSIX_SEMANTICS.
@@ -217,5 +217,5 @@ index e2ae123237..fba9825b25 100644
  
  static void test_file_link_information(FILE_INFORMATION_CLASS class)
 -- 
-2.55.0.windows.4
+2.55.0
 

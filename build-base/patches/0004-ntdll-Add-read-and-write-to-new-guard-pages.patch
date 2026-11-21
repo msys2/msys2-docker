@@ -1,4 +1,4 @@
-From 37778f24cafaa123c5d1fb91b3ee435b66d4c44b Mon Sep 17 00:00:00 2001
+From 891634feb52c2c2a8e1225a3b633423db9026a55 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Bernhard=20=C3=9Cbelacker?= <bernhardu@mailbox.org>
 Date: Sat, 23 Dec 2023 16:04:40 +0100
 Subject: [PATCH 4/7] ntdll: Add read and write to new guard pages.
@@ -16,7 +16,7 @@ Wine-Bug: https://bugs.winehq.org/show_bug.cgi?id=55138
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/dlls/ntdll/unix/virtual.c b/dlls/ntdll/unix/virtual.c
-index db820a8952..026f13920c 100644
+index d6038c4dcb..d25132522a 100644
 --- a/dlls/ntdll/unix/virtual.c
 +++ b/dlls/ntdll/unix/virtual.c
 @@ -4581,7 +4581,7 @@ static NTSTATUS grow_thread_stack( struct thread_data *data, char *page, struct
@@ -29,5 +29,5 @@ index db820a8952..026f13920c 100644
      }
      else  /* inside guaranteed space -> overflow exception */
 -- 
-2.55.0.windows.4
+2.55.0
 

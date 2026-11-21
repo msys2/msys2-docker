@@ -1,4 +1,4 @@
-From 6b96ee62400a27a3ad743a3d37058345259621ef Mon Sep 17 00:00:00 2001
+From 41cf61bc96030aabfd4c40f6e682d3f905e00aeb Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Bernhard=20=C3=9Cbelacker?= <bernhardu@mailbox.org>
 Date: Tue, 13 May 2025 11:46:19 -0700
 Subject: [PATCH 2/7] ntdll/tests: Test that read-only files deny write-data
@@ -30,5 +30,5 @@ index fe7b6e1910..ce899b4edc 100644
      status = pNtOpenFile(&handle, FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES, &attr, &io, default_sharing, FILE_NON_DIRECTORY_FILE);
      todo_wine ok(status == STATUS_SUCCESS, "expected STATUS_SUCCESS, got %#lx.\n", status);
 -- 
-2.55.0.windows.4
+2.55.0
 
