@@ -1,4 +1,4 @@
-From f93aeaa8f68c74085a68d4cfdc2f2746684ad28d Mon Sep 17 00:00:00 2001
+From 2b1262852462d2996b06c94815992a08d3139263 Mon Sep 17 00:00:00 2001
 From: Joel Holdsworth <joel@airwebreathe.org.uk>
 Date: Wed, 20 Sep 2023 11:29:26 +0100
 Subject: [PATCH 6/7] ntdll/test: Add tests for FILE_LINK_POSIX_SEMANTICS.
@@ -226,5 +226,5 @@ index fba9825b25..78b65fb16e 100644
  
  static void test_file_both_information(void)
 -- 
-2.55.0.windows.4
+2.55.0
 

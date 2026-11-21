@@ -1,4 +1,4 @@
-From bdcee9e75bd0d98c0330c47242ae71ce209ef3b0 Mon Sep 17 00:00:00 2001
+From 6e9d59d46dab00f5613373a2e910b3cf60b787c9 Mon Sep 17 00:00:00 2001
 From: Joel Holdsworth <joel@airwebreathe.org.uk>
 Date: Mon, 7 Aug 2023 12:05:47 +0100
 Subject: [PATCH 7/7] ntdll: Add support for
@@ -67,7 +67,7 @@ index 78b65fb16e..80516f473e 100644
      ok( !fileDeleted, "file should exist\n" );
      fileDeleted = GetFileAttributesW( newpath ) == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_FILE_NOT_FOUND;
 diff --git a/dlls/ntdll/unix/file.c b/dlls/ntdll/unix/file.c
-index d9b9e578d6..cb035c263d 100644
+index 7b15004bd9..27f3d60ffd 100644
 --- a/dlls/ntdll/unix/file.c
 +++ b/dlls/ntdll/unix/file.c
 @@ -5443,7 +5443,9 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
@@ -93,10 +93,10 @@ index d9b9e578d6..cb035c263d 100644
  
              name_str.Buffer = info->FileName;
 diff --git a/server/fd.c b/server/fd.c
-index 1ae7ebe6ce..f2b11cc74a 100644
+index 6095935be2..641f177f12 100644
 --- a/server/fd.c
 +++ b/server/fd.c
-@@ -2812,13 +2812,6 @@ static void set_fd_name( struct fd *fd, struct fd *root, const char *nameptr, da
+@@ -2813,13 +2813,6 @@ static void set_fd_name( struct fd *fd, struct fd *root, const char *nameptr, da
              goto failed;
          }
  
@@ -110,7 +110,7 @@ index 1ae7ebe6ce..f2b11cc74a 100644
          /* read-only files cannot be replaced */
          if (!(st.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH)) &&
              !(flags & FILE_RENAME_IGNORE_READONLY_ATTRIBUTE))
-@@ -2827,23 +2820,79 @@ static void set_fd_name( struct fd *fd, struct fd *root, const char *nameptr, da
+@@ -2828,23 +2821,79 @@ static void set_fd_name( struct fd *fd, struct fd *root, const char *nameptr, da
              goto failed;
          }
  
@@ -202,5 +202,5 @@ index 1ae7ebe6ce..f2b11cc74a 100644
                  file_set_error();
                  goto failed;
 -- 
-2.55.0.windows.4
+2.55.0
 
